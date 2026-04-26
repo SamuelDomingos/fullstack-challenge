@@ -1,0 +1,15 @@
+import { Wallet } from "@/domain/entities/wallet";
+import { Money } from "@/domain/value-objects/money";
+
+export interface IWalletRepository {
+  findByUserId(userId: string): Promise<Wallet | null>;
+  save(wallet: Wallet): Promise<void>;
+  create(wallet: Wallet): Promise<void>;
+}
+
+export interface WalletProps {
+  userId: string;
+  balance: Money;
+  createdAt: Date;
+  updatedAt: Date;
+}
