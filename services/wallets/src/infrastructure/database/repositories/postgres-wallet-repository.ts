@@ -1,6 +1,6 @@
 import { Wallet } from "@/domain/entities/wallet";
 import { IWalletRepository } from "@/domain/repositories/wallet-repository.interface";
-import { Money } from "@/domain/value-objects/money";
+import { Money } from "@/domain/value-objects/Money";
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 

@@ -1,7 +1,7 @@
 import { DepositMoneyUseCase } from "@/application/use-cases/deposit-money.use-case";
 import { WithdrawMoneyUseCase } from "@/application/use-cases/withdraw-money.use-case";
 import { Controller } from "@nestjs/common";
-import { EventPattern, Payload } from "@nestjs/microservices";
+import { EventPattern, MessagePattern, Payload } from "@nestjs/microservices";
 
 @Controller()
 export class WalletEventsController {
@@ -10,12 +10,17 @@ export class WalletEventsController {
     private readonly withdrawUseCase: WithdrawMoneyUseCase,
   ) {}
 
-  @EventPattern("bet_placed")
+  @MessagePattern("bet_placed")
   async handleBetPlaced(@Payload() data: { userId: string; amount: string }) {
-    this.withdrawUseCase.execute({
-      userId: data.userId,
-      amount: Number(data.amount),
-    });
+    try {
+      await this.withdrawUseCase.execute({
+        userId: data.userId,
+        amount: Number(data.amount),
+      });
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, message: error.message };
+    }
   }
 
   @EventPattern("bet_won")

@@ -7,6 +7,7 @@ import { CreateBetUseCase } from "@/application/use-cases/create-bet.use-case";
 import { CashoutBetUseCase } from "@/application/use-cases/cashout-bet.use-case";
 import { StartRoundUseCase } from "@/application/use-cases/start-round.use-case";
 import { CrashRoundUseCase } from "@/application/use-cases/crash-round.use-case";
+import { CreateRoundUseCase } from "@/application/use-cases/create-round.use-case";
 import { WalletClient } from "@/infrastructure/messaging/wallet-client";
 import { PrismaService } from "./infrastructure/database/prisma.service";
 import { IRoundRepository } from "./domain/repositories/IRoundRepository";
@@ -59,6 +60,12 @@ import { IBetRepository } from "./domain/repositories/IBetRepository";
         roundRepo: PostgresRoundRepository,
         betRepo: PostgresBetRepository,
       ) => new CrashRoundUseCase(roundRepo, betRepo),
+    },
+    {
+      provide: CreateRoundUseCase,
+      inject: [IRoundRepository],
+      useFactory: (roundRepo: PostgresRoundRepository) =>
+        new CreateRoundUseCase(roundRepo),
     },
     GameGateway,
   ],

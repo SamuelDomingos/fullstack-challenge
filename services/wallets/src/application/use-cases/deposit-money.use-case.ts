@@ -1,5 +1,5 @@
 import { IWalletRepository } from '@/domain/repositories/wallet-repository.interface';
-import { Money } from '@/domain/value-objects/money';
+import { Money } from '@/domain/value-objects/Money';
 import { DepositMoneyDTO } from '@/application/dtos/wallet.dto';
 
 export class DepositMoneyUseCase {

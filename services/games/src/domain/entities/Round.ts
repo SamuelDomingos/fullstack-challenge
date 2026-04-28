@@ -18,7 +18,7 @@ export class Round {
     const crashPoint = ProvablyFair.calculateCrashPoint(seed);
 
     const props: RoundProps = {
-      id: "",
+      id: crypto.randomUUID(),
       status: "BETTING",
       crashPoint,
       startTime: new Date(),
@@ -100,10 +100,9 @@ export class Round {
     }
 
     const now = new Date();
-    const elapsedSeconds =
-      (now.getTime() - this.props.startTime.getTime()) / 1000;
+    const elapsedMs = now.getTime() - this.props.startTime.getTime();
 
-    const value = 1 + elapsedSeconds * 0.01;
+    const value = Math.pow(Math.E, 0.00006 * elapsedMs);
 
     const finalValue = Math.min(value, this.props.crashPoint);
 

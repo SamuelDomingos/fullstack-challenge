@@ -6,8 +6,8 @@ export class Multiplier {
   }
 
   static fromValue(value: number): Multiplier {
-    if (value < 1.0 || value > 100.0) {
-      throw new Error("O multiplicador deve estar entre 1.0 e 100.0");
+    if (value < 1.0) {
+      throw new Error("O multiplicador deve ser maior ou igual a 1.0");
     }
     return new Multiplier(value);
   }

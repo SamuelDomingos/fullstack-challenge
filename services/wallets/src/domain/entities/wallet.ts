@@ -1,5 +1,5 @@
 import { WalletProps } from "@/domain/repositories/wallet-repository.interface";
-import { Money } from "@/domain/value-objects/money";
+import { Money } from "@/domain/value-objects/Money";
 
 export class Wallet {
   private props: WalletProps;

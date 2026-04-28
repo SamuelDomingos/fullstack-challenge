@@ -1,5 +1,5 @@
 import { Wallet } from "@/domain/entities/wallet";
-import { Money } from "@/domain/value-objects/money";
+import { Money } from "@/domain/value-objects/Money";
 
 export interface IWalletRepository {
   findByUserId(userId: string): Promise<Wallet | null>;

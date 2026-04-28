@@ -41,7 +41,9 @@ export class PostgresBetRepository implements IBetRepository {
         userId: betData.userId,
         amount: betData.amount,
         roundId: betData.roundId,
-        multiplierAtCashout: Number(betData.cashoutMultiplier),
+        multiplierAtCashout: betData.cashoutMultiplier != null
+            ? Number(betData.cashoutMultiplier)
+            : null,
         status: betData.status as BetProps["status"],
       }),
     );

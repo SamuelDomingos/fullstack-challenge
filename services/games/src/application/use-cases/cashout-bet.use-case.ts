@@ -17,7 +17,7 @@ export class CashoutBetUseCase {
       throw new Error("Não há rodada ativa no momento");
     }
 
-    const bets = await this.betRepository.findBetsRoundId(dto.roundId);
+    const bets = await this.betRepository.findBetsRoundId(round.id);
 
     if (!bets || bets.length === 0) {
       throw new Error("Aposta não encontrada");

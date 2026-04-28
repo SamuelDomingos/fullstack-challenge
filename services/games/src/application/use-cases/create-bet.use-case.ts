@@ -25,6 +25,18 @@ export class CreateBetUseCase {
 
     const amount = BetAmount.fromCents(dto.amount);
 
+    const existingBets = await this.betRepository.findBetsRoundId(round.id);
+    const alreadyBet = existingBets.some((b) => b.toJSON().userId === dto.userId);
+    if (alreadyBet) {
+      throw new Error("Você já possui uma aposta nesta rodada");
+    }
+
+    const response = await this.walletClient.sendBetPlaced(dto.userId, amount.cents);
+
+    if (!response || !response.success) {
+      throw new Error(response?.message || "Saldo insuficiente para realizar a aposta");
+    }
+
     const bet = new Bet({
       id: crypto.randomUUID(),
       userId: dto.userId,
@@ -35,7 +47,7 @@ export class CreateBetUseCase {
     });
 
     await this.betRepository.saveBet(bet);
-    await this.walletClient.emitBetPlaced(dto.userId, amount.cents);
+
 
     return bet;
   }

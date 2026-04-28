@@ -1,3 +1,4 @@
+
 export interface CrashSeedProps {
   serverSeed: string;
   serverSeedHash: string;

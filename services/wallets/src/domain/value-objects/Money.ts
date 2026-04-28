@@ -26,7 +26,7 @@ export class Money {
 
   subtract(other: Money): Money {
     if (this.amountInCents < other.amountInCents) {
-      throw new Error("Operação resultaria em valor negativo");
+      throw new Error("Saldo insuficiente");
     }
     return new Money(this.amountInCents - other.amountInCents);
   }

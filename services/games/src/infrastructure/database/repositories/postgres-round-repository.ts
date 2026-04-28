@@ -81,12 +81,37 @@ export class PostgresRoundRepository implements IRoundRepository {
       }),
     );
   }
-
+  async findTopPlayers(limit: number): Promise<any[]> {
+    return await this.prisma.bet.findMany({
+      where: { status: "WON" },
+      orderBy: { amount: "desc" },
+      take: limit,
+    });
+  }
   async findCurrentNonce(): Promise<number> {
     const lastRound = await this.prisma.round.findFirst({
       orderBy: { nonce: "desc" },
     });
 
     return lastRound ? lastRound.nonce + 1 : 0;
+  }
+  async findById(roundId: string): Promise<Round | null> {
+    const roundData = await this.prisma.round.findUnique({
+      where: { id: roundId },
+    });
+
+    if (!roundData) return null;
+
+    return Round.reconstitute({
+      id: roundData.id,
+      status: roundData.status as RoundProps["status"],
+      crashPoint: Number(roundData.crashPoint),
+      startTime: roundData.startTime,
+      endTime: roundData.endTime,
+      serverSeed: roundData.serverSeed,
+      serverSeedHash: roundData.serverSeedHash,
+      clientSeed: roundData.clientSeed,
+      nonce: roundData.nonce,
+    });
   }
 }
