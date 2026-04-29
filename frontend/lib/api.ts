@@ -28,5 +28,5 @@ export async function apiFetch<T>(
     throw new ApiError(data?.message || "Erro inesperado", response.status)
   }
 
-  return data.data as T
+  return data as T
 }

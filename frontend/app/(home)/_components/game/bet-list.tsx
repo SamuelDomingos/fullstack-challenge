@@ -14,7 +14,6 @@ import { numberToCurrency } from "@/lib/utils"
 
 export function BetList() {
   const { totalBets } = useGameStore();
-
   return (
     <Card className="rounded-4xl border-border shadow-sm">
       <CardHeader className="pb-4">

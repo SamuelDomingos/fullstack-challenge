@@ -40,7 +40,7 @@ services:
       retries: 10
 
   # ---------------------------------------------------------------------------
-  # Keycloak (Identity Provider)
+  # Keycloak (Identity Provider) — SEM healthcheck problemático
   # ---------------------------------------------------------------------------
   keycloak:
     image: quay.io/keycloak/keycloak:26.5.5
@@ -53,12 +53,6 @@ services:
       KC_HEALTH_ENABLED: "true"
     volumes:
       - ./docker/keycloak:/opt/keycloak/data/import:ro
-    healthcheck:
-      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '200'"]
-      interval: 10s
-      timeout: 5s
-      retries: 15
-      start_period: 30s
 
   # ---------------------------------------------------------------------------
   # Kong (API Gateway — DB-less / declarative)
@@ -103,10 +97,12 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/health"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 15s
+    command: sh -c "bunx prisma migrate reset --force && bun run start"
 
   # ---------------------------------------------------------------------------
   # Wallets Service
@@ -123,22 +119,28 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4002/health"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 15s
+    command: sh -c "bunx prisma migrate reset --force && bun run start"
 
   # ---------------------------------------------------------------------------
-  # Frontend (placeholder — candidate implements)
+  # Frontend — SEM dependência bloqueante do Keycloak
   # ---------------------------------------------------------------------------
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - kong
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./frontend/.env
+    command: "bun run start"
+    restart: unless-stopped
+    extra_hosts:
+    - "localhost:host-gateway"
 
 volumes:
   postgres_data:

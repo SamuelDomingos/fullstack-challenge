@@ -83,7 +83,7 @@ export class Round {
     return this.props.id;
   }
 
-  getTotalBetsAmount(): bigint {
+  getTotalUserBetsAmount(): bigint {
     return 0n;
   }
 

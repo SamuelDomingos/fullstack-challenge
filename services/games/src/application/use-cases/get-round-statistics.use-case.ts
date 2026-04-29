@@ -8,12 +8,9 @@ export class GetRoundStatisticsUseCase {
   constructor(private readonly betRepository: IBetRepository) {}
 
   async execute(dto: GetRoundStatisticsUseCaseDTO): Promise<RoundStatistics> {
-    const bets = await this.betRepository.findBetsRoundId(dto.roundId);
+    const valueBetsUser = await this.betRepository.findUserBetsId(dto.userId);
 
-    const totalAmount = bets.reduce((sum, bet) => {
-      return sum + bet.toJSON().amount;
-    }, 0n);
 
-    return RoundStatistics.create(totalAmount);
+    return RoundStatistics.create(valueBetsUser);
   }
 }

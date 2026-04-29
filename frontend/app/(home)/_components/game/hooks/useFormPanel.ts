@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { useGameStore } from "../store/game.store"
 import { useEffect, useMemo, useState } from "react"
+import { numberToCurrency } from "@/lib/utils"
 
 const useFormPanel = () => {
   const { data: session } = useSession()
@@ -15,17 +16,24 @@ const useFormPanel = () => {
   const status = useGameStore((s) => s.status)
   const roundId = useGameStore((s) => s.roundId)
 
-  console.log(status)
-
   const form = useForm<BetFormData>({
     resolver: zodResolver(betSchema),
     defaultValues: {
       amount: 0n,
-      multiplier: 1,
+      multiplierAtCashout: 1,
     },
   })
 
-  const onSubmit = async (data: BetFormData) => {
+  const currentBet = form.watch("amount")
+  const currentMultiplier = form.watch("multiplierAtCashout")
+
+  const potentialWin = useMemo(() => {
+    return (Number(currentBet) * currentMultiplier) / 100
+  }, [currentBet, currentMultiplier])
+
+const resultCents = (currentBet * BigInt(Math.floor(currentMultiplier * 100))) / 100n;
+
+  const onSubmit = async () => {
     const token = session?.user?.accessToken
     if (!token) {
       setShowAuthModal(true)
@@ -34,31 +42,26 @@ const useFormPanel = () => {
 
     try {
       if (status === "RUNNING") {
-        await gameService.betCashout(token, roundId)
-        toast.success("Cashout realizado com sucesso!")
+        const result = await gameService.betCashout(token, roundId)
+        console.log(result)
+
+        toast.success(`Saque de ${numberToCurrency(result.result)}!`)
         setHasCashedOut(true)
       } else {
-        const response = await gameService.createBet(token, {
-          amount: data.amount.toString(),
+        await gameService.createBet(token, {
+          amount: resultCents.toString(),
         })
-        toast.success(response.message || "Aposta realizada com sucesso!")
+        toast.success(`Aposta de ${numberToCurrency(resultCents)} realizada com sucesso!`)
       }
     } catch (error: any) {
       toast.error(error.message || "Erro ao apostar")
     }
   }
 
-  const currentBet = form.watch("amount")
-  const currentMultiplier = form.watch("multiplier")
-
-  const potentialWin = useMemo(() => {
-    return (Number(currentBet) * currentMultiplier) / 100
-  }, [currentBet, currentMultiplier])
-
   const isButtonDisabled = status === "RUNNING" && hasCashedOut
 
   const buttonText = useMemo(() => {
-    return status === "BETTING" ? "Apostar" : "Crashar"
+    return status === "BETTING" ? "Apostar" : "Sacar"
   }, [status])
 
   useEffect(() => {

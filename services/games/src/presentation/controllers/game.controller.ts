@@ -68,10 +68,11 @@ export class GameController {
       }
 
       const finalDto = { ...dto, userId };
-      await this.cashoutBetUseCase.execute(finalDto);
+      const result = await this.cashoutBetUseCase.execute(finalDto);
 
       return {
         message: "Cashout realizado com sucesso!",
+        result
       };
     } catch (error: any) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

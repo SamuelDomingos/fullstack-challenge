@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
     KeycloakProvider({
       clientId: process.env.AUTH_KEYCLOAK_ID!,
       clientSecret: process.env.AUTH_KEYCLOAK_SECRET!,
-      issuer: process.env.AUTH_KEYCLOAK_ISSUER!,
+      issuer: process.env.NEXT_PUBLIC_KEYCLOAK_ISSUER || process.env.AUTH_KEYCLOAK_ISSUER!,
     }),
   ],
   callbacks: {

@@ -1,18 +1,29 @@
 import { apiFetch } from "@/lib/api"
-import { LeaderboardItem, RoundHistoryItem, Bet } from "../_types/Game"
+import {
+  LeaderboardItem,
+  RoundHistoryItem,
+  Bet,
+  CashoutResponse,
+} from "../_types/Game"
 
 export const gameService = {
   async getRoundHistory(): Promise<RoundHistoryItem[]> {
-    return apiFetch<RoundHistoryItem[]>("/games/rounds/history")
+    const res = await apiFetch<{ data: RoundHistoryItem[] }>(
+      "/games/rounds/history"
+    )
+    return res.data
   },
 
   async getLeaderboard(): Promise<LeaderboardItem[]> {
-    return apiFetch<LeaderboardItem[]>("/games/leaderboard")
+    const res = await apiFetch<{ data: LeaderboardItem[] }>(
+      "/games/leaderboard"
+    )
+    return res.data
   },
 
   async createBet(
     token: string,
-    data: { amount: string; multiplier?: number }
+    data: { amount: string }
   ): Promise<{ message: string; data: Bet }> {
     return await apiFetch("/games/bet", {
       method: "POST",
@@ -25,10 +36,7 @@ export const gameService = {
     })
   },
 
-  async betCashout(
-    token: string,
-    roundId: string
-  ): Promise<{ message: string; data: Bet }> {
+  async betCashout(token: string, roundId: string): Promise<CashoutResponse> {
     return await apiFetch("/games/bet/cashout", {
       method: "POST",
       headers: {
@@ -36,5 +44,21 @@ export const gameService = {
       },
       body: JSON.stringify({ roundId }),
     })
+  },
+
+  async verifyRound(roundId: string): Promise<{
+    data: {
+      id: string
+      status: "BETTING" | "RUNNING" | "CRASHED"
+      crashPoint: number
+      startTime: string
+      endTime: string
+      serverSeed: string
+      serverSeedHash: string
+      clientSeed: string
+      nonce: number
+    }
+  }> {
+    return apiFetch(`/games/rounds/${roundId}/verify`)
   },
 }

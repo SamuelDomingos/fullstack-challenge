@@ -3,6 +3,7 @@ import { Bet } from "../entities/Bet";
 export abstract class IBetRepository {
   abstract saveBet(bet: Bet): Promise<void>;
   abstract findBetsRoundId(id: string): Promise<Bet[]>;
+  abstract findUserBetsId(userId: string): Promise<bigint>;
 }
 
 export interface BetProps {

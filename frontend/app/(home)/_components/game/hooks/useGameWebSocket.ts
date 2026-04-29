@@ -39,6 +39,7 @@ export const useGameWebSocket = () => {
 
     socket.on("connect", () => {
       console.log("✅ Conectado ao Game WebSocket")
+
       setConnected(true)
     })
 
@@ -51,10 +52,11 @@ export const useGameWebSocket = () => {
       setBettingTimer(data.secondsLeft)
     })
 
+    socket.on("user_stats_update", (data: GameEvents["user_stats_update"]) => {
+      setTotalBets(data.totalBets)
+    })
+
     socket.on("multiplier_update", (data: GameEvents["multiplier_update"]) => {
-      if (data.totalBets) {
-        setTotalBets(BigInt(data.totalBets))
-      }
       setMultiplier(Number(data.multiplier))
     })
 

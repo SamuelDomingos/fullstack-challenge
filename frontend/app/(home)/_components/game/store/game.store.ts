@@ -8,7 +8,7 @@ type GameState = {
   isConnected: boolean
   bets: Bet[]
   roundId: string
-  totalBets: bigint
+  totalBets: string
 
   status: "BETTING" | "RUNNING" | "CRASHED"
 
@@ -19,7 +19,7 @@ type GameState = {
   setBets: (v: Bet[]) => void
   setRoundId: (v: string) => void
   setStatus: (v: "BETTING" | "RUNNING" | "CRASHED") => void
-  setTotalBets: (v: bigint) => void
+  setTotalBets: (v: string) => void
 }
 
 export const useGameStore = create<GameState>((set) => ({
@@ -31,7 +31,7 @@ export const useGameStore = create<GameState>((set) => ({
   roundId: "",
   status: "BETTING",
 
-  totalBets: 0n,
+  totalBets: "0n",
 
   setConnected: (v) => set({ isConnected: v }),
   setMultiplier: (v) => set({ multiplier: v }),

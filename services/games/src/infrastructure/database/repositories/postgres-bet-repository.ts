@@ -30,9 +30,9 @@ export class PostgresBetRepository implements IBetRepository {
     });
   }
 
-  async findBetsRoundId(roundId: string): Promise<Bet[]> {
+  async findBetsRoundId(id: string): Promise<Bet[]> {
     const betsData = await this.prisma.bet.findMany({
-      where: { roundId: roundId },
+      where: { roundId: id },
     });
 
     return betsData.map((betData) =>
@@ -47,5 +47,14 @@ export class PostgresBetRepository implements IBetRepository {
         status: betData.status as BetProps["status"],
       }),
     );
+  }
+
+  async findUserBetsId(userId: string): Promise<bigint> {
+    const result = await this.prisma.bet.aggregate({
+      _sum: { amount: true },
+      where: { userId: userId },
+    });
+
+    return result._sum.amount || 0n;
   }
 }

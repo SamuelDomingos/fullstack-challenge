@@ -12,5 +12,5 @@ export interface RoundResponseDTO {
 }
 
 export interface GetRoundStatisticsUseCaseDTO {
-  roundId: string;
+  userId: string;
 }

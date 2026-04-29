@@ -28,6 +28,14 @@ const pressStart2P = Press_Start_2P({
   variable: "--font-press-start",
 })
 
+export const metadata = {
+  title: "Jungle Gaming - Crash Game",
+  description: "Experience the thrill of the ultimate crash game",
+  icons: {
+    icon: "/logo.svg",
+  },
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{

@@ -11,7 +11,7 @@ export function useDepositForm() {
   const form = useForm<DepositFormValues>({
     resolver: zodResolver(depositSchema) as Resolver<DepositFormValues>,
     defaultValues: {
-      amountInCents: 0n,
+      amountInCents: "0n",
     },
     mode: "onChange",
   })
@@ -24,7 +24,7 @@ export function useDepositForm() {
     }
 
     try {
-      await walletService.deposit(token, { amountInCents: data.amountInCents.toString() })
+      await walletService.deposit(token, { amountInCents: data.amountInCents })
 
       toast.success("Depósito realizado com sucesso!")
       form.reset()

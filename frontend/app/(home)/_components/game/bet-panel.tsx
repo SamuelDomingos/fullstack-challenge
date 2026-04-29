@@ -109,7 +109,7 @@ export function BetPanel() {
 
           <div className="flex flex-col gap-2">
             <Controller
-              name="multiplier"
+              name="multiplierAtCashout"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
@@ -140,26 +140,26 @@ export function BetPanel() {
                           size="sm"
                           className="rounded-xl px-2 py-1 text-xs"
                           onClick={() => {
-                            const value = form.getValues("multiplier") || 1
+                            const value = form.getValues("multiplierAtCashout") || 1
 
                             const MAX_MULTIPLIER = 10
 
                             if (button === "1/2") {
                               form.setValue(
-                                "multiplier",
+                                "multiplierAtCashout",
                                 Math.max(0, value / 2)
                               )
                             }
 
                             if (button === "2x") {
                               form.setValue(
-                                "multiplier",
+                                "multiplierAtCashout",
                                 Math.min(MAX_MULTIPLIER, value * 2)
                               )
                             }
 
                             if (button === "Max") {
-                              form.setValue("multiplier", MAX_MULTIPLIER)
+                              form.setValue("multiplierAtCashout", MAX_MULTIPLIER)
                             }
                           }}
                         >

@@ -10,16 +10,16 @@ export default async function Page() {
   const token = session?.user?.accessToken
 
   const [balance, history, leaderboard] = await Promise.all([
-    token
-      ? walletService.getBalance(token).catch(() => ({ balance: "0" }))
-      : Promise.resolve({ balance: 0 }),
+    token ? walletService.getBalance(token).catch(() => "0") : Promise.resolve("0"),
+
     gameService.getRoundHistory().catch(() => []),
+
     gameService.getLeaderboard().catch(() => []),
   ])
 
   return (
     <div className="relative flex min-h-screen flex-col">
-      <Header balance={balance.balance} />
+      <Header balance={balance} />
       <main className="w-full flex-1">
         <div className="container mx-auto w-full p-4 lg:h-[calc(100vh-370px)]">
           <GameContainer history={history} />

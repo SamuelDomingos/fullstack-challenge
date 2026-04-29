@@ -12,10 +12,7 @@ import { CreateRoundUseCase } from "@/application/use-cases/create-round.use-cas
 import { IRoundRepository } from "@/domain/repositories/IRoundRepository";
 import { Round } from "@/domain/entities/Round";
 import * as crypto from "crypto";
-import { IBetRepository } from "@/domain/repositories/IBetRepository";
-import { WalletClient } from "@/infrastructure/messaging/wallet-client";
 import { GetRoundStatisticsUseCase } from "@/application/use-cases/get-round-statistics.use-case";
-import { firstValueFrom } from "rxjs";
 
 @WebSocketGateway({
   cors: { origin: "*" },
@@ -89,12 +86,20 @@ export class GameGateway
         if (round.status === "RUNNING") {
           const multiplier = round.getCurrentMultiplier().toDecimal();
 
-          const roundStats = await this.getRoundStats(round.id);
-
           this.server.emit("multiplier_update", {
             multiplier: multiplier.toFixed(2),
-            totalBets: roundStats.totalAmount,
           });
+
+          const sockets = await this.server.fetchSockets();
+          await Promise.all(
+            sockets.map(async (socket) => {
+              const userId = socket.data.userId;
+              const stats = await this.getRoundStats(userId);
+              socket.emit("user_stats_update", {
+                totalBets: stats.totalAmount,
+              });
+            }),
+          );
 
           if (multiplier >= round.crashPoint) {
             await this.executeCrash(round);
@@ -160,9 +165,9 @@ export class GameGateway
     }, 5000);
   }
 
-  private async getRoundStats(roundId: string) {
+  private async getRoundStats(userId: string) {
     const stats = await this.getRoundStatisticsUseCase.execute({
-      roundId,
+      userId,
     });
 
     return stats.toJSON();

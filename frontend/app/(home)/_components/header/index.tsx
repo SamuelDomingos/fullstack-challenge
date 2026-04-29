@@ -1,6 +1,7 @@
 import { HeaderActions } from "./header-actions"
 import Image from "next/image"
 import AvatarProfile from "./avatar"
+import { VerifyRoundDialog } from "./verify-round-dialog"
 
 export function Header({ balance }: { balance: string }) {
   return (
@@ -16,6 +17,9 @@ export function Header({ balance }: { balance: string }) {
       </div>
 
       <div className="flex items-center gap-6">
+
+        <VerifyRoundDialog />
+
         <HeaderActions balance={balance} />
 
         <AvatarProfile />

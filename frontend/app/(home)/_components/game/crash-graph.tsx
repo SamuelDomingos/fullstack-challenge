@@ -97,7 +97,7 @@ export function CrashGraph({ history }: { history?: RoundHistoryItem[] }) {
     <Card className="h-full w-full overflow-hidden border-none bg-transparent shadow-none">
       <CardHeader>
         <div className="flex items-center gap-2">
-          {history?.slice(-5).map((point, i) => (
+          {Array.isArray(history) && history.slice(-5).map((point, i) => (
             <Badge
               key={i}
               variant="outline"

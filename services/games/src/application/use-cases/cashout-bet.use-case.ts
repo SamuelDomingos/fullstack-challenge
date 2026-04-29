@@ -10,7 +10,7 @@ export class CashoutBetUseCase {
     private walletClient: WalletClient,
   ) {}
 
-  async execute(dto: BetCashoutUseCaseDTO): Promise<void> {
+  async execute(dto: BetCashoutUseCaseDTO): Promise<string> {
     const round = await this.roundRepository.findActiveRound();
 
     if (!round) {
@@ -34,5 +34,6 @@ export class CashoutBetUseCase {
 
     await this.betRepository.saveBet(bet);
     await this.walletClient.emitBetWon(dto.userId, payout);
+    return payout.toString();
   }
 }

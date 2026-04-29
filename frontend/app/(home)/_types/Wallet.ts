@@ -1,7 +1,9 @@
 export interface WalletBalance {
-  balance: string;
+  data: {
+    balance: string
+  }
 }
 
 export interface DepositMoneyDTO {
-  amountInCents: string;
+  amountInCents: string
 }

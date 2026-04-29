@@ -8,14 +8,24 @@ import {
 } from "@/components/ui/table"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { RoundHistoryItem } from "../_types/Game"
+import { RoundHistoryItem } from "../../_types/Game"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Copy } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
-export function RoundHistory({
-  history = [],
-}: {
-  history?: RoundHistoryItem[]
-}) {
+export function RoundHistory({ history }: { history?: RoundHistoryItem[] }) {
+  const handleCopyId = async (id: string) => {
+    await navigator.clipboard.writeText(id)
+    toast.success("ID da rodada copiado!")
+  }
+  
   return (
     <Card className="flex h-full flex-col">
       <CardHeader>
@@ -38,11 +48,30 @@ export function RoundHistory({
               </TableHeader>
 
               <TableBody>
-                {history.slice(-12).map((round, i) => {
+                {Array.isArray(history) && history.slice(-12).map((round, i) => {
                   return (
                     <TableRow key={i}>
                       <TableCell className="px-4 py-2 text-[11px] text-muted-foreground">
-                        #{history.length - i}
+                        <div className="flex items-center gap-2">
+                          <TooltipProvider>
+                            {" "}
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-4 w-4 p-0"
+                                  onClick={() => handleCopyId(round.id)}
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Copiar ID da rodada</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
                       </TableCell>
 
                       <TableCell className="px-4 py-2 text-right">

@@ -2,6 +2,11 @@ export interface RoundHistoryItem {
   id: string
   crashPoint: number
   status: string
+  startTime: string
+  endTime: string | null
+  serverSeedHash: string
+  clientSeed: string
+  nonce: number
 }
 
 export interface LeaderboardItem {
@@ -32,4 +37,9 @@ export interface Round {
 export interface GameState {
   activeRound: Round | null
   userBets: Bet[]
+}
+
+export interface CashoutResponse {
+  message: string
+  result: string
 }
