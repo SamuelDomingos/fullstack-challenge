@@ -83,6 +83,10 @@ export class Round {
     return this.props.id;
   }
 
+  getTotalBetsAmount(): bigint {
+    return 0n;
+  }
+
   getPublicSeedInfo() {
     return this.seed.toPublicJSON();
   }

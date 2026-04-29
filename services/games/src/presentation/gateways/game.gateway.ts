@@ -12,6 +12,10 @@ import { CreateRoundUseCase } from "@/application/use-cases/create-round.use-cas
 import { IRoundRepository } from "@/domain/repositories/IRoundRepository";
 import { Round } from "@/domain/entities/Round";
 import * as crypto from "crypto";
+import { IBetRepository } from "@/domain/repositories/IBetRepository";
+import { WalletClient } from "@/infrastructure/messaging/wallet-client";
+import { GetRoundStatisticsUseCase } from "@/application/use-cases/get-round-statistics.use-case";
+import { firstValueFrom } from "rxjs";
 
 @WebSocketGateway({
   cors: { origin: "*" },
@@ -33,12 +37,8 @@ export class GameGateway
     @Inject(forwardRef(() => CreateRoundUseCase))
     private readonly createRoundUseCase: CreateRoundUseCase,
     private readonly roundRepository: IRoundRepository,
+    private readonly getRoundStatisticsUseCase: GetRoundStatisticsUseCase,
   ) {}
-
-  async afterInit() {
-    await this.createInitialRound();
-    this.start();
-  }
 
   private async createInitialRound() {
     try {
@@ -50,6 +50,11 @@ export class GameGateway
     } catch (err) {
       console.error("Erro ao criar rodada inicial:", err);
     }
+  }
+
+  async afterInit() {
+    await this.createInitialRound();
+    this.start();
   }
 
   async handleConnection(client: Socket) {
@@ -67,7 +72,6 @@ export class GameGateway
   handleDisconnect(_client: Socket) {}
 
   private start() {
-    // Loop do TIMER (1000ms = 1 segundo)
     this.timerLoop = setInterval(() => {
       this.bettingTimer--;
       this.server.emit("betting_timer", { secondsLeft: this.bettingTimer });
@@ -77,7 +81,6 @@ export class GameGateway
       }
     }, 1000);
 
-    // Loop do MULTIPLICADOR (100ms = smooth)
     this.gameLoop = setInterval(async () => {
       try {
         const round = await this.roundRepository.findActiveRound();
@@ -85,8 +88,12 @@ export class GameGateway
 
         if (round.status === "RUNNING") {
           const multiplier = round.getCurrentMultiplier().toDecimal();
+
+          const roundStats = await this.getRoundStats(round.id);
+
           this.server.emit("multiplier_update", {
             multiplier: multiplier.toFixed(2),
+            totalBets: roundStats.totalAmount,
           });
 
           if (multiplier >= round.crashPoint) {
@@ -104,7 +111,6 @@ export class GameGateway
       const round = await this.roundRepository.findActiveRound();
 
       if (!round || round.status !== "BETTING") {
-        console.warn("Nenhuma rodada em BETTING encontrada");
         return;
       }
 
@@ -152,5 +158,13 @@ export class GameGateway
       await this.createInitialRound();
       this.start();
     }, 5000);
+  }
+
+  private async getRoundStats(roundId: string) {
+    const stats = await this.getRoundStatisticsUseCase.execute({
+      roundId,
+    });
+
+    return stats.toJSON();
   }
 }

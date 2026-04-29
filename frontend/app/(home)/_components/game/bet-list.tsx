@@ -10,18 +10,10 @@ import {
 } from "@/components/ui/tooltip"
 import { Eye } from "lucide-react"
 import { useGameStore } from "./store/game.store"
-
-function formatMoney(value: number) {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(value / 100);
-}
+import { numberToCurrency } from "@/lib/utils"
 
 export function BetList() {
-  const { bets } = useGameStore();
-  
-  const totalAmount = bets.reduce((acc, bet) => acc + (bet.amount || 0), 0);
+  const { totalBets } = useGameStore();
 
   return (
     <Card className="rounded-4xl border-border shadow-sm">
@@ -32,7 +24,7 @@ export function BetList() {
             Jogadores
           </CardTitle>
           <div className="flex items-center -space-x-2 hover:space-x-1">
-            <span className="mr-1">{bets.length}</span>
+            {/* <span className="mr-1">{bets.length}</span>
             {bets.slice(0, 3).map((bet, i) => (
               <Tooltip key={i}>
                 <TooltipTrigger asChild>
@@ -48,7 +40,7 @@ export function BetList() {
                 </TooltipTrigger>
                 <TooltipContent>{bet.user}</TooltipContent>
               </Tooltip>
-            ))}
+            ))} */}
           </div>
         </div>
         <Separator className="mt-2" />
@@ -65,7 +57,7 @@ export function BetList() {
             </span>
             <Separator orientation="vertical" />
             <span className="text-sm font-bold text-primary">
-              {formatMoney(totalAmount)}
+              {numberToCurrency(totalBets)}
             </span>
           </div>
         </div>

@@ -9,13 +9,21 @@ import { Compass, X } from "lucide-react"
 import useFormPanel from "./hooks/useFormPanel"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { numberToCurrency, parseCurrency } from "@/lib/utils"
+import { AuthModal } from "@/components/auth-modal"
 
 const APOSTA_BUTTONS = ["1/2", "2x", "Max"]
 const MULTIPLICADOR_BUTTONS = ["1/2", "2x", "10x"]
 
 export function BetPanel() {
-  const { form, onSubmit, buttonText, potentialWin, isButtonDisabled } =
-    useFormPanel()
+  const {
+    form,
+    onSubmit,
+    buttonText,
+    potentialWin,
+    isButtonDisabled,
+    showAuthModal,
+    setShowAuthModal
+  } = useFormPanel()
 
   return (
     <Card className="rounded-4xl border-border shadow-sm">
@@ -188,6 +196,7 @@ export function BetPanel() {
             {buttonText}
           </Button>
         </form>
+        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
       </CardContent>
     </Card>
   )

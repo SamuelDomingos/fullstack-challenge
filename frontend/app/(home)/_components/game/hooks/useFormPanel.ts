@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react"
 const useFormPanel = () => {
   const { data: session } = useSession()
   const [hasCashedOut, setHasCashedOut] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   const status = useGameStore((s) => s.status)
   const roundId = useGameStore((s) => s.roundId)
@@ -27,7 +28,7 @@ const useFormPanel = () => {
   const onSubmit = async (data: BetFormData) => {
     const token = session?.user?.accessToken
     if (!token) {
-      toast.error("Erro de autenticação")
+      setShowAuthModal(true)
       return
     }
 
@@ -72,6 +73,8 @@ const useFormPanel = () => {
     potentialWin,
     isButtonDisabled,
     buttonText,
+    showAuthModal,
+    setShowAuthModal,
   }
 }
 

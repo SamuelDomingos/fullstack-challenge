@@ -12,6 +12,7 @@ import { WalletClient } from "@/infrastructure/messaging/wallet-client";
 import { PrismaService } from "./infrastructure/database/prisma.service";
 import { IRoundRepository } from "./domain/repositories/IRoundRepository";
 import { IBetRepository } from "./domain/repositories/IBetRepository";
+import { GetRoundStatisticsUseCase } from "./application/use-cases/get-round-statistics.use-case";
 
 @Module({
   controllers: [GameController],
@@ -29,6 +30,7 @@ import { IBetRepository } from "./domain/repositories/IBetRepository";
       useClass: PostgresBetRepository,
     },
     WalletClient,
+    GetRoundStatisticsUseCase,
     {
       provide: CreateBetUseCase,
       inject: [IBetRepository, IRoundRepository, WalletClient],

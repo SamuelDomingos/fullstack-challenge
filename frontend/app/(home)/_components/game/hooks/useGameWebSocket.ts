@@ -20,12 +20,13 @@ export const useGameWebSocket = () => {
     setGameCrashed,
     setBets,
     setStatus,
-    setRoundId
+    setRoundId,
+    setTotalBets,
   } = useGameStore()
 
   useEffect(() => {
     const socket = io(`${process.env.NEXT_PUBLIC_API_KONG_URL}`, {
-      path: '/games/socket.io',
+      path: "/games/socket.io",
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
@@ -51,6 +52,9 @@ export const useGameWebSocket = () => {
     })
 
     socket.on("multiplier_update", (data: GameEvents["multiplier_update"]) => {
+      if (data.totalBets) {
+        setTotalBets(BigInt(data.totalBets))
+      }
       setMultiplier(Number(data.multiplier))
     })
 
@@ -78,7 +82,14 @@ export const useGameWebSocket = () => {
     return () => {
       socket.disconnect()
     }
-  }, [setConnected, setMultiplier, setBettingTimer, setGameCrashed, setStatus, setRoundId])
+  }, [
+    setConnected,
+    setMultiplier,
+    setBettingTimer,
+    setGameCrashed,
+    setStatus,
+    setRoundId,
+  ])
 
   const emit = useCallback(
     <K extends keyof GameEvents>(event: K, data: GameEvents[K]) => {

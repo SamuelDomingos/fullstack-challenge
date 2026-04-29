@@ -13,8 +13,12 @@ export function parseCurrency(value: string): bigint {
 }
 
 export function numberToCurrency(value: bigint | string): string {
-  return new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(Number(value) / 100)
-}
+    const numericValue = Number(value);
+    const isCents = typeof value === "bigint" || (typeof value === "string" && !value.includes("."));
+    const finalValue = isCents ? numericValue / 100 : numericValue;
+
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(finalValue);
+  }

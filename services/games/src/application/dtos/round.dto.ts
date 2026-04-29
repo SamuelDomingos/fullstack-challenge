@@ -10,3 +10,7 @@ export interface RoundResponseDTO {
   crashPoint: number;
   startTime: Date;
 }
+
+export interface GetRoundStatisticsUseCaseDTO {
+  roundId: string;
+}
