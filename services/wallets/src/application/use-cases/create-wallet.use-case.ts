@@ -16,7 +16,6 @@ export class CreateWalletUseCase {
     const wallet = new Wallet({
       userId: dto.userId,
       balance: Money.fromCents(0n),
-      createdAt: new Date(),
       updatedAt: new Date(),
     });
 

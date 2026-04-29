@@ -12,12 +12,12 @@ export default async function Page() {
 
   const [balance, history, leaderboard] = await Promise.all([
     token
-      ? walletService.getBalance(token).catch(() => ({ balance: 0 }))
+      ? walletService.getBalance(token).catch(() => ({ balance: "0" }))
       : Promise.resolve({ balance: 0 }),
     gameService.getRoundHistory().catch(() => []),
     gameService.getLeaderboard().catch(() => []),
   ])
-
+  
   return (
     <div className="relative flex min-h-screen flex-col">
       <Header balance={balance.balance} />

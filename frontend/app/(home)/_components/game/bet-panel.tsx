@@ -6,32 +6,16 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 
 import { Compass, X } from "lucide-react"
-import useFormPanel from "./_hooks/useFormPanel"
+import useFormPanel from "./hooks/useFormPanel"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
-import { useGameStore } from "./_store/game.store"
-import { NumericFormat } from "react-number-format"
-import { useMemo } from "react"
+import { numberToCurrency, parseCurrency } from "@/lib/utils"
 
 const APOSTA_BUTTONS = ["1/2", "2x", "Max"]
 const MULTIPLICADOR_BUTTONS = ["1/2", "2x", "10x"]
 
 export function BetPanel() {
-  const status = useGameStore((s) => s.status)
-
-  const isButtonDisabled = useMemo(() => {
-    return status !== "BETTING"
-  }, [status])
-
-  const buttonText = useMemo(() => {
-    return status === "BETTING" ? "Apostar" : "Apostas Encerradas"
-  }, [status])
-
-  const { form, onSubmit } = useFormPanel()
-  const currentBet = form.watch("amount")
-  const currentMultiplier = form.watch("multiplier")
-  const potentialWin = useMemo(() => {
-    return (currentBet * currentMultiplier) / 100
-  }, [currentBet, currentMultiplier])
+  const { form, onSubmit, buttonText, potentialWin, isButtonDisabled } =
+    useFormPanel()
 
   return (
     <Card className="rounded-4xl border-border shadow-sm">
@@ -60,24 +44,18 @@ export function BetPanel() {
                     <span className="text-xs text-muted-foreground">R$</span>
                     <Separator orientation="vertical" className="mx-2" />
 
-                    <NumericFormat
+                    <Input
+                      {...field}
                       id={field.name}
-                      thousandSeparator="."
-                      decimalSeparator=","
-                      prefix=""
-                      decimalScale={2}
-                      fixedDecimalScale
-                      value={field.value ? field.value / 100 : ""}
-                      onValueChange={(values) => {
-                        const floatValue = values.floatValue
-
-                        if (floatValue === undefined) {
-                          field.onChange(0)
-                        } else {
-                          field.onChange(Math.round(floatValue * 100))
-                        }
-                      }}
                       aria-invalid={fieldState.invalid}
+                      placeholder={numberToCurrency(0n)}
+                      autoComplete="off"
+                      type="text"
+                      value={field.value ? numberToCurrency(field.value) : ""}
+                      onChange={(e) => {
+                        const value = parseCurrency(e.target.value)
+                        field.onChange(value)
+                      }}
                       className="border-none bg-transparent! p-0 text-sm font-bold text-primary focus-visible:ring-0"
                     />
 
@@ -89,16 +67,16 @@ export function BetPanel() {
                           size="sm"
                           className="rounded-xl px-2 py-1 text-xs"
                           onClick={() => {
-                            const value = form.getValues("amount") || 0
-                            const MAX_BET = 1000
+                            const value = form.getValues("amount") || 0n
+                            const MAX_BET = 100000n
                             if (button === "1/2") {
-                              form.setValue("amount", Math.max(0, value / 2))
+                              form.setValue("amount", BigInt(Math.max(0, Number(value) / 2)))
                             }
 
                             if (button === "2x") {
                               form.setValue(
                                 "amount",
-                                Math.min(MAX_BET, value * 2)
+                                value * 2n <= MAX_BET ? value * 2n : MAX_BET
                               )
                             }
 
@@ -203,7 +181,6 @@ export function BetPanel() {
 
           <Button
             type="submit"
-            disabled={isButtonDisabled}
             className={`mt-2 h-12 w-full rounded-full text-lg font-bold ${
               isButtonDisabled ? "cursor-not-allowed opacity-50" : ""
             }`}

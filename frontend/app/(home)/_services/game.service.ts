@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api"
-import { LeaderboardItem, RoundHistoryItem } from "../_types/Game"
+import { LeaderboardItem, RoundHistoryItem, Bet } from "../_types/Game"
 
 export const gameService = {
   async getRoundHistory(): Promise<RoundHistoryItem[]> {
@@ -10,13 +10,31 @@ export const gameService = {
     return apiFetch<LeaderboardItem[]>("/games/leaderboard")
   },
 
-  async createBet(token: string, data: { amount: number; multiplier: number }) {
-    return apiFetch("/games/bet", {
+  async createBet(
+    token: string,
+    data: { amount: string; multiplier?: number }
+  ): Promise<{ message: string; data: Bet }> {
+    return await apiFetch("/games/bet", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        amount: data.amount,
+      }),
+    })
+  },
+
+  async betCashout(
+    token: string,
+    roundId: string
+  ): Promise<{ message: string; data: Bet }> {
+    return await apiFetch("/games/bet/cashout", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ roundId }),
     })
   },
 }

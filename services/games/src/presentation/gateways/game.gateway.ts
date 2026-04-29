@@ -22,7 +22,8 @@ export class GameGateway
   @WebSocketServer()
   server!: Server;
 
-  private gameInterval: NodeJS.Timeout | null = null;
+  private gameLoop: NodeJS.Timeout | null = null;
+  private timerLoop: NodeJS.Timeout | null = null;
   private bettingTimer = 50;
   private isCrashing = false;
 
@@ -34,48 +35,55 @@ export class GameGateway
     private readonly roundRepository: IRoundRepository,
   ) {}
 
-  afterInit() {
-    this.startGameLoop();
+  async afterInit() {
+    await this.createInitialRound();
+    this.start();
   }
 
-  handleConnection(client: Socket) {
-    client.emit("betting_timer", { secondsLeft: this.bettingTimer });
+  private async createInitialRound() {
+    try {
+      let round = await this.roundRepository.findActiveRound();
+      if (!round) {
+        const clientSeed = crypto.randomBytes(16).toString("hex");
+        await this.createRoundUseCase.execute(clientSeed);
+      }
+    } catch (err) {
+      console.error("Erro ao criar rodada inicial:", err);
+    }
+  }
+
+  async handleConnection(client: Socket) {
+    try {
+      const round = await this.roundRepository.findActiveRound();
+      client.emit("betting_timer", {
+        secondsLeft: this.bettingTimer,
+        status: round?.status || "BETTING",
+      });
+    } catch (err) {
+      console.error("Erro ao conectar:", err);
+    }
   }
 
   handleDisconnect(_client: Socket) {}
 
-  startGameLoop() {
-    if (this.gameInterval || this.isCrashing) return;
+  private start() {
+    // Loop do TIMER (1000ms = 1 segundo)
+    this.timerLoop = setInterval(() => {
+      this.bettingTimer--;
+      this.server.emit("betting_timer", { secondsLeft: this.bettingTimer });
 
-    this.gameInterval = setInterval(async () => {
+      if (this.bettingTimer <= 0) {
+        this.transitionToRunning();
+      }
+    }, 1000);
+
+    // Loop do MULTIPLICADOR (100ms = smooth)
+    this.gameLoop = setInterval(async () => {
       try {
         const round = await this.roundRepository.findActiveRound();
+        if (!round) return;
 
-        if (!round) {
-          const clientSeed = crypto.randomBytes(16).toString("hex");
-          await this.createRoundUseCase.execute(clientSeed);
-          this.bettingTimer = 50;
-          this.server.emit("betting_timer", { secondsLeft: this.bettingTimer, status: "BETTING" });
-          
-          return;
-        }
-
-        const status = round.status;
-
-        if (status === "BETTING") {
-          this.bettingTimer--;
-          this.server.emit("betting_timer", { secondsLeft: this.bettingTimer, status: "BETTING" });
-
-          if (this.bettingTimer <= 0) {
-            round.startRound();
-            await this.roundRepository.saveRound(round);
-            this.server.emit("round_started", {
-              roundId: round.id,
-              serverSeedHash: round.getPublicSeedInfo().serverSeedHash,
-            });
-          }
-        } else if (status === "RUNNING") {
-          this.server.emit("betting_timer", { secondsLeft: 0, status: "RUNNING" });
+        if (round.status === "RUNNING") {
           const multiplier = round.getCurrentMultiplier().toDecimal();
           this.server.emit("multiplier_update", {
             multiplier: multiplier.toFixed(2),
@@ -86,36 +94,63 @@ export class GameGateway
           }
         }
       } catch (err) {
-        console.error("Erro no loop do jogo:", err);
+        console.error("Erro no game loop:", err);
       }
-    }, 1000);
+    }, 100);
+  }
+
+  private async transitionToRunning() {
+    try {
+      const round = await this.roundRepository.findActiveRound();
+
+      if (!round || round.status !== "BETTING") {
+        console.warn("Nenhuma rodada em BETTING encontrada");
+        return;
+      }
+
+      round.startRound();
+      await this.roundRepository.saveRound(round);
+
+      this.server.emit("round_started", {
+        roundId: round.id,
+        serverSeedHash: round.getPublicSeedInfo().serverSeedHash,
+        status: "RUNNING",
+      });
+    } catch (err) {
+      console.error("Erro ao transicionar:", err);
+    }
   }
 
   private async executeCrash(round: Round) {
     if (this.isCrashing) return;
     this.isCrashing = true;
 
-    if (this.gameInterval) {
-      clearInterval(this.gameInterval);
-      this.gameInterval = null;
-    }
-
     try {
       await this.crashRoundUseCase.execute();
       this.server.emit("game_crash", {
         crashPoint: round.crashPoint.toFixed(2),
         roundId: round.id,
-        status: "CRASHED"
+        status: "CRASHED",
       });
     } catch (err) {
-      console.error("Erro ao processar crash:", err);
+      console.error("Erro ao crashar:", err);
     }
 
-    this.bettingTimer = 50;
+    this.resetRound();
+  }
 
-    setTimeout(() => {
-      this.isCrashing = false;
-      this.startGameLoop();
+  private resetRound() {
+    this.bettingTimer = 50;
+    this.isCrashing = false;
+
+    if (this.gameLoop) clearInterval(this.gameLoop);
+    if (this.timerLoop) clearInterval(this.timerLoop);
+    this.gameLoop = null;
+    this.timerLoop = null;
+
+    setTimeout(async () => {
+      await this.createInitialRound();
+      this.start();
     }, 5000);
   }
 }

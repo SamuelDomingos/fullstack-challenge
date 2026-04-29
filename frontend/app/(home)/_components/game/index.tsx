@@ -5,7 +5,7 @@ import { BetPanel } from "./bet-panel"
 import { BetList } from "./bet-list"
 import { RoundHistory } from "../roundHistory"
 import { RoundHistoryItem } from "../../_types/Game"
-import { useGameWebSocket } from "./_hooks/useGameWebSocket"
+import { useGameWebSocket } from "./hooks/useGameWebSocket"
 
 export function GameContainer({ history }: { history: RoundHistoryItem[] }) {
   useGameWebSocket()

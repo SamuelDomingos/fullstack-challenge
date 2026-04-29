@@ -5,17 +5,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function parseCurrency(value: string): number {
-  if (!value) return 0
+export function parseCurrency(value: string): bigint {
+  if (!value) return 0n
 
   const cleanValue = value.replace(/\D/g, "")
-
-  return Number(cleanValue)
+  return BigInt(cleanValue)
 }
 
-export function numberToCurrency(value: number): string {
+export function numberToCurrency(value: bigint | string): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
-  }).format(value/ 200)
+  }).format(Number(value) / 100)
 }

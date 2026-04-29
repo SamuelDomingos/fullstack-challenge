@@ -12,8 +12,12 @@ export class WithdrawMoneyUseCase {
       throw new Error('Carteira não encontrada para este usuário');
     }
 
-    const amount = Money.fromDecimal(dto.amount);
-    
+    const amount = Money.fromCents(dto.amountInCents);
+
+    if (!wallet.balance.isGreaterThanOrEqual(amount)) {
+      throw new Error('Saldo insuficiente');
+    }
+
     wallet.withdraw(amount);
 
     await this.walletRepository.save(wallet);

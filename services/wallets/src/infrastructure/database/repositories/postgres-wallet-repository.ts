@@ -20,7 +20,6 @@ export class PostgresWalletRepository implements IWalletRepository {
     return new Wallet({
       userId: walletData.userId,
       balance: Money.fromCents(walletData.balance),
-      createdAt: new Date(),
       updatedAt: walletData.UpdatedAt,
     });
   }

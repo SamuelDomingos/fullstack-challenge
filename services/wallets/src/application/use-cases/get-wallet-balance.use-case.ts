@@ -13,7 +13,7 @@ export class GetWalletBalanceUseCase {
 
     return {
       userId: wallet.userId,
-      balance: wallet.balance.toDecimal(),
+      balance: wallet.balance.toString(),
       updatedAt: wallet.toJSON().updatedAt,
     };
   }

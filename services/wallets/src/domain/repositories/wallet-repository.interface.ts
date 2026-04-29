@@ -10,6 +10,5 @@ export interface IWalletRepository {
 export interface WalletProps {
   userId: string;
   balance: Money;
-  createdAt: Date;
   updatedAt: Date;
 }

@@ -1,7 +1,7 @@
 export interface WalletBalance {
-  balance: number;
+  balance: string;
 }
 
 export interface DepositMoneyDTO {
-  amount: number;
+  amountInCents: string;
 }

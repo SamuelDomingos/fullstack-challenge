@@ -12,7 +12,7 @@ export class DepositMoneyUseCase {
       throw new Error('Carteira não encontrada para este usuário');
     }
 
-    const amount = Money.fromDecimal(dto.amount);
+    const amount = Money.fromCents(dto.amountInCents);
     wallet.deposit(amount);
 
     await this.walletRepository.save(wallet);

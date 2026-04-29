@@ -23,6 +23,8 @@ export const walletService = {
     token: string,
     dto: DepositMoneyDTO
   ): Promise<{ message: string }> {
+    console.log(token);
+    
     return apiFetch<{ message: string }>("/wallets/deposit", {
       method: "POST",
       headers: {

@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Eye } from "lucide-react"
-import { useGameStore } from "./_store/game.store"
+import { useGameStore } from "./store/game.store"
 
 function formatMoney(value: number) {
   return new Intl.NumberFormat("pt-BR", {

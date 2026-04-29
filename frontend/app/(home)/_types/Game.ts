@@ -7,14 +7,14 @@ export interface RoundHistoryItem {
 export interface LeaderboardItem {
   name: string
   avatar: string
-  amount: number
+  amount: bigint
   payout: number
 }
 
 export interface Bet {
   id: string
   userId: string
-  amount: number
+  amount: bigint
   roundId: string
   multiplierAtCashout: number | null
   status: "PENDING" | "WON" | "LOST"

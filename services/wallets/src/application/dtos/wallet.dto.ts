@@ -4,16 +4,16 @@ export interface CreateWalletDTO {
 
 export interface DepositMoneyDTO {
   userId: string;
-  amount: number;
+  amountInCents: bigint;
 }
 
 export interface WithdrawMoneyDTO {
   userId: string;
-  amount: number;
+  amountInCents: bigint;
 }
 
 export interface WalletResponseDTO {
   userId: string;
-  balance: number;
+  balance: string;
   updatedAt: Date;
 }

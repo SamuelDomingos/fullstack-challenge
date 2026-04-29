@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useCallback } from "react"
 import { io, Socket } from "socket.io-client"
-import { GameEvents } from "../_interfaces/gameEvents"
-import { useGameStore } from "../_store/game.store"
+import { GameEvents } from "../interfaces/gameEvents"
+import { useGameStore } from "../store/game.store"
 import { Bet } from "@/app/(home)/_types/Game"
 
 export const useGameWebSocket = () => {
@@ -20,6 +20,7 @@ export const useGameWebSocket = () => {
     setGameCrashed,
     setBets,
     setStatus,
+    setRoundId
   } = useGameStore()
 
   useEffect(() => {
@@ -47,31 +48,28 @@ export const useGameWebSocket = () => {
 
     socket.on("betting_timer", (data: GameEvents["betting_timer"]) => {
       setBettingTimer(data.secondsLeft)
-      setStatus("BETTING")
-      setGameCrashed(null)
     })
 
     socket.on("multiplier_update", (data: GameEvents["multiplier_update"]) => {
       setMultiplier(Number(data.multiplier))
-      setStatus("RUNNING")
-      setGameCrashed(null)
     })
 
     socket.on("game_crash", (data: GameEvents["game_crash"]) => {
       setGameCrashed(Number(data.crashPoint))
       setStatus("CRASHED")
+      setMultiplier(Number(data.crashPoint))
     })
 
     socket.on("bets_update", (data: Bet[]) => {
       setBets(data)
     })
 
-    socket.on("round_started", () => {
-      setMultiplier(1)
-      setStatus("RUNNING")
+    socket.on("round_started", (data) => {
+      setMultiplier(1.0)
+      setRoundId(data.roundId)
       setGameCrashed(null)
+      setStatus("RUNNING")
     })
-
 
     socket.on("error", (error) => {
       console.error("❌ Erro no WebSocket:", error)
@@ -80,7 +78,7 @@ export const useGameWebSocket = () => {
     return () => {
       socket.disconnect()
     }
-  }, [setConnected, setMultiplier, setBettingTimer, setGameCrashed])
+  }, [setConnected, setMultiplier, setBettingTimer, setGameCrashed, setStatus, setRoundId])
 
   const emit = useCallback(
     <K extends keyof GameEvents>(event: K, data: GameEvents[K]) => {

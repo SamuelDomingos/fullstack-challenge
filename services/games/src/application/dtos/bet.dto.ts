@@ -13,12 +13,8 @@ export interface BetResponseDTO {
 }
 
 export interface BetCashoutUseCaseDTO {
-  id: string;
   userId: string;
   roundId: string;
-  amount: bigint;
-  cashoutAmount: bigint;
-  createdAt: Date;
 }
 
 export interface BetCashoutResponseDTO {

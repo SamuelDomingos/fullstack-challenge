@@ -1,19 +1,18 @@
 import { CreateWalletUseCase } from "@/application/use-cases/create-wallet.use-case";
 import { GetWalletBalanceUseCase } from "@/application/use-cases/get-wallet-balance.use-case";
-import { DepositMoneyUseCase } from "@/application/use-cases/deposit-money.use-case";
 import {
   Controller,
   Post,
   Get,
-  Body,
   Request,
   HttpException,
   HttpStatus,
   UseGuards,
+  Body,
 } from "@nestjs/common";
 import { AuthGuard } from "../guards/auth.guard";
-import type { DepositMoneyDTO } from "@/application/dtos/wallet.dto";
 import { WalletAutoCreateGuard } from "../guards/wallet-auto-create.guard";
+import { DepositMoneyUseCase } from "@/application/use-cases/deposit-money.use-case";
 
 @Controller("")
 export class WalletController {
@@ -60,9 +59,7 @@ export class WalletController {
 
     try {
       const balance = await this.getWalletBalanceUseCase.execute(userId);
-      return {
-        data: balance,
-      };
+      return { data: balance };
     } catch (error: any) {
       throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
@@ -70,7 +67,7 @@ export class WalletController {
 
   @Post("deposit")
   @UseGuards(AuthGuard, WalletAutoCreateGuard)
-  async deposit(@Body() dto: DepositMoneyDTO, @Request() req: any) {
+  async deposit(@Body() dto: { amountInCents: string }, @Request() req: any) {
     try {
       const userId = req.user?.sub;
 
@@ -81,10 +78,12 @@ export class WalletController {
         );
       }
 
-      await this.depositMoneyUseCase.execute({ ...dto, userId });
-      return {
-        message: "Depósito realizado com sucesso",
-      };
+      await this.depositMoneyUseCase.execute({
+        userId,
+        amountInCents: BigInt(dto.amountInCents),
+      });
+
+      return { message: "Depósito realizado com sucesso" };
     } catch (error: any) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }

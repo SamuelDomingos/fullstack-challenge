@@ -11,7 +11,7 @@ import {
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import FuzzyText from "@/components/ui/fuzzy-text"
-import { useGameStore } from "./_store/game.store"
+import { useGameStore } from "./store/game.store"
 import { RoundHistoryItem } from "../../_types/Game"
 
 export function CrashGraph({ history }: { history?: RoundHistoryItem[] }) {
@@ -19,7 +19,7 @@ export function CrashGraph({ history }: { history?: RoundHistoryItem[] }) {
   const bettingTimer = useGameStore((s) => s.bettingTimer)
   const gameCrashed = useGameStore((s) => s.gameCrashed)
   const status = useGameStore((s) => s.status)
-
+  
   const graphData = useMemo(() => {
     const data = []
 

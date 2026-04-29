@@ -1,6 +1,6 @@
 import { useForm, Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { DepositFormValues, depositSchema } from "../_schema/depositSchema"
+import { DepositFormValues, depositSchema } from "../schema/depositSchema"
 import { useSession } from "next-auth/react"
 import { walletService } from "@/app/(home)/_services/wallet.service"
 import { toast } from "sonner"
@@ -11,7 +11,7 @@ export function useDepositForm() {
   const form = useForm<DepositFormValues>({
     resolver: zodResolver(depositSchema) as Resolver<DepositFormValues>,
     defaultValues: {
-      amount: 0,
+      amountInCents: 0n,
     },
     mode: "onChange",
   })
@@ -24,7 +24,7 @@ export function useDepositForm() {
     }
 
     try {
-      await walletService.deposit(token, { amount: data.amount })
+      await walletService.deposit(token, { amountInCents: data.amountInCents.toString() })
 
       toast.success("Depósito realizado com sucesso!")
       form.reset()
