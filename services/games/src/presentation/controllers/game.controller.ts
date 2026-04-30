@@ -92,17 +92,6 @@ export class GameController {
     }
   }
 
-  @Get("rounds/current")
-  async getCurrentRound() {
-    const round = await this.roundRepository.findActiveRound();
-    if (!round) {
-      throw new HttpException("Nenhuma rodada ativa", HttpStatus.NOT_FOUND);
-    }
-    return {
-      data: round.toPublicJSON(),
-    };
-  }
-
   @Get("rounds/history")
   async getHistory() {
     const history = await this.roundRepository.findHistory();
