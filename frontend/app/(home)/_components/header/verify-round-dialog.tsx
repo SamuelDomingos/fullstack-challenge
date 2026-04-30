@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Copy, ShieldCheck } from "lucide-react"
-import useVerifyRound from "./hooks/useVerifyRound"
+import useVerifyRound from "./hooks/use-verify-round"
 import { Controller } from "react-hook-form"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Clock } from "lucide-react"
@@ -37,7 +37,7 @@ export function VerifyRoundDialog() {
           Verificar Rodada
         </Button>
       </DialogTrigger>
-     <DialogContent className="max-w-2xl!">
+      <DialogContent className="max-w-2xl!">
         <DialogHeader>
           <DialogTitle>Verificar Integridade da Rodada</DialogTitle>
           <DialogDescription>

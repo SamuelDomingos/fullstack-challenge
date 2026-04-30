@@ -13,11 +13,24 @@ export function parseCurrency(value: string): bigint {
 }
 
 export function numberToCurrency(value: bigint | string): string {
+  if (typeof value === "string") {
+    const cleanString = value
+      .replace(/n$/, "") 
+      .replace(".", "")
+      .replace(",", "")
+    const parsed = BigInt(cleanString || "0")
+    value = parsed
+  }
+
+  if (value === 0n) {
+    return new Intl.NumberFormat("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(0)
+  }
+
   const numericValue = Number(value)
-  const isCents =
-    typeof value === "bigint" ||
-    (typeof value === "string" && !value.includes("."))
-  const finalValue = isCents ? numericValue / 100 : numericValue
+  const finalValue = numericValue / 100
 
   return new Intl.NumberFormat("pt-BR", {
     minimumFractionDigits: 2,

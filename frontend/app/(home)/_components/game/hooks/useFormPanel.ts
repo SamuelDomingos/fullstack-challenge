@@ -5,16 +5,23 @@ import { gameService } from "@/app/(home)/_services/game.service"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { useGameStore } from "../store/game.store"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useCallback } from "react"
 import { numberToCurrency } from "@/lib/utils"
+import { useAutoCashout } from "./useAutoCashout"
 
 const useFormPanel = () => {
   const { data: session } = useSession()
   const [hasCashedOut, setHasCashedOut] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
 
+  const [autoCashoutConfig, setAutoCashoutConfig] = useState({
+    isEnabled: false,
+    multiplier: 2.0,
+  })
+
   const status = useGameStore((s) => s.status)
   const roundId = useGameStore((s) => s.roundId)
+  const currentMultiplier = useGameStore((s) => s.multiplier)
 
   const form = useForm<BetFormData>({
     resolver: zodResolver(betSchema),
@@ -25,13 +32,34 @@ const useFormPanel = () => {
   })
 
   const currentBet = form.watch("amount")
-  const currentMultiplier = form.watch("multiplierAtCashout")
+  const currentMultiplierInput = form.watch("multiplierAtCashout")
 
   const potentialWin = useMemo(() => {
-    return (Number(currentBet) * currentMultiplier) / 100
-  }, [currentBet, currentMultiplier])
+    return (Number(currentBet) * currentMultiplierInput) / 100
+  }, [currentBet, currentMultiplierInput])
 
-const resultCents = (currentBet * BigInt(Math.floor(currentMultiplier * 100))) / 100n;
+  const resultCents = useMemo(
+    () =>
+      (currentBet * BigInt(Math.floor(currentMultiplierInput * 100))) / 100n,
+    [currentBet, currentMultiplierInput]
+  )
+
+  const handleCashout = useCallback(async () => {
+    const token = session?.user?.accessToken
+    if (!token) {
+      setShowAuthModal(true)
+      return
+    }
+
+    try {
+      const result = await gameService.betCashout(token, roundId)
+      toast.success(`Saque de ${numberToCurrency(result.result)}!`)
+      setHasCashedOut(true)
+    } catch (error: any) {
+      toast.error(error.message || "Erro ao sacar")
+      throw error
+    }
+  }, [session?.user?.accessToken, roundId])
 
   const onSubmit = async () => {
     const token = session?.user?.accessToken
@@ -42,21 +70,25 @@ const resultCents = (currentBet * BigInt(Math.floor(currentMultiplier * 100))) /
 
     try {
       if (status === "RUNNING") {
-        const result = await gameService.betCashout(token, roundId)
-        console.log(result)
-
-        toast.success(`Saque de ${numberToCurrency(result.result)}!`)
-        setHasCashedOut(true)
+        await handleCashout()
       } else {
         await gameService.createBet(token, {
           amount: resultCents.toString(),
         })
-        toast.success(`Aposta de ${numberToCurrency(resultCents)} realizada com sucesso!`)
+        toast.success(
+          `Aposta de ${numberToCurrency(resultCents)} realizada com sucesso!`
+        )
       }
     } catch (error: any) {
       toast.error(error.message || "Erro ao apostar")
     }
   }
+
+  useAutoCashout({
+    config: autoCashoutConfig,
+    onCashout: handleCashout,
+    isButtonDisabled: hasCashedOut,
+  })
 
   const isButtonDisabled = status === "RUNNING" && hasCashedOut
 
@@ -78,6 +110,9 @@ const resultCents = (currentBet * BigInt(Math.floor(currentMultiplier * 100))) /
     buttonText,
     showAuthModal,
     setShowAuthModal,
+    autoCashoutConfig,
+    setAutoCashoutConfig,
+    currentMultiplier,
   }
 }
 

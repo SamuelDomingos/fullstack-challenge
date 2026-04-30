@@ -53,7 +53,7 @@ export function HeaderActions({ balance }: { balance: string }) {
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-106">
-          <form onSubmit={form.handleSubmit((data: any) => handleDeposit(data))}>
+          <form onSubmit={form.handleSubmit((data) => handleDeposit(data))}>
             <DialogHeader>
               <DialogTitle>Adicionar Fundos</DialogTitle>
               <DialogDescription>

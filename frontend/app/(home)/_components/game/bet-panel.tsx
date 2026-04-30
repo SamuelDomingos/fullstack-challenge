@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
 
-import { Compass, X } from "lucide-react"
+import { Compass, X, Zap } from "lucide-react"
 import useFormPanel from "./hooks/useFormPanel"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { numberToCurrency, parseCurrency } from "@/lib/utils"
@@ -22,7 +23,10 @@ export function BetPanel() {
     potentialWin,
     isButtonDisabled,
     showAuthModal,
-    setShowAuthModal
+    setShowAuthModal,
+    autoCashoutConfig,
+    setAutoCashoutConfig,
+    currentMultiplier,
   } = useFormPanel()
 
   return (
@@ -30,7 +34,7 @@ export function BetPanel() {
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center gap-2 text-base">
           <Compass className="size-5 fill-primary text-accent" />
-          Manual
+          Painel
         </CardTitle>
         <Separator className="mt-2" />
       </CardHeader>
@@ -78,7 +82,10 @@ export function BetPanel() {
                             const value = form.getValues("amount") || 0n
                             const MAX_BET = 100000n
                             if (button === "1/2") {
-                              form.setValue("amount", BigInt(Math.max(0, Number(value) / 2)))
+                              form.setValue(
+                                "amount",
+                                BigInt(Math.max(0, Number(value) / 2))
+                              )
                             }
 
                             if (button === "2x") {
@@ -116,7 +123,7 @@ export function BetPanel() {
                   <FieldLabel>Multiplicador</FieldLabel>
 
                   <div className="flex items-center rounded-full border border-border bg-muted px-3 py-1">
-                    <span className="text-xs text-muted-foreground">×</span>
+                    <X className="text-muted-foreground" />
 
                     <Separator orientation="vertical" className="mx-2" />
 
@@ -125,7 +132,6 @@ export function BetPanel() {
                       value={field.value ?? 1}
                       onChange={(e) => {
                         const value = Number(e.target.value)
-
                         field.onChange(Number.isFinite(value) ? value : 1)
                       }}
                       aria-invalid={fieldState.invalid}
@@ -140,7 +146,8 @@ export function BetPanel() {
                           size="sm"
                           className="rounded-xl px-2 py-1 text-xs"
                           onClick={() => {
-                            const value = form.getValues("multiplierAtCashout") || 1
+                            const value =
+                              form.getValues("multiplierAtCashout") || 1
 
                             const MAX_MULTIPLIER = 10
 
@@ -159,7 +166,10 @@ export function BetPanel() {
                             }
 
                             if (button === "Max") {
-                              form.setValue("multiplierAtCashout", MAX_MULTIPLIER)
+                              form.setValue(
+                                "multiplierAtCashout",
+                                MAX_MULTIPLIER
+                              )
                             }
                           }}
                         >
@@ -187,6 +197,71 @@ export function BetPanel() {
             </span>
           </div>
 
+          <div className="rounded-2xl border border-border/50 from-accent/5 to-transparent p-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Zap className="size-4 text-accent" />
+                <div className="flex flex-col gap-0.5">
+                  <FieldLabel className="text-xs font-semibold">
+                    Auto Cashout
+                  </FieldLabel>
+                  <p className="text-xs text-muted-foreground">
+                    Saca automaticamente em
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={autoCashoutConfig.isEnabled}
+                onCheckedChange={(checked) =>
+                  setAutoCashoutConfig({
+                    ...autoCashoutConfig,
+                    isEnabled: checked,
+                  })
+                }
+                aria-label="Ativar auto cashout"
+              />
+            </div>
+
+            {autoCashoutConfig.isEnabled && (
+              <div className="mt-3 flex animate-in items-center gap-2 rounded-xl bg-background/50 px-3 py-2 transition-all duration-300 fade-in slide-in-from-top-2">
+                <X className="text-muted-foreground" />
+
+                <Input
+                  type="text"
+                  inputMode="decimal"
+                  className="border-none bg-transparent! p-0 text-sm font-bold text-primary focus-visible:ring-0"
+                  value={autoCashoutConfig.multiplier}
+                  onChange={(e) => {
+                    let val = e.target.value
+                    val = val.replace(",", ".")
+                    setAutoCashoutConfig({
+                      ...autoCashoutConfig,
+                      multiplier: Number(val),
+                    })
+                  }}
+                />
+
+                {currentMultiplier > 0 && (
+                  <div className="ml-auto flex items-center gap-2">
+                    <div className="text-right">
+                      <p className="text-xs font-semibold text-primary">
+                        {currentMultiplier.toFixed(2)}x
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {autoCashoutConfig.isEnabled &&
+                        currentMultiplier >= autoCashoutConfig.multiplier
+                          ? "Pronto para sacar!"
+                          : `Faltam ${(
+                              autoCashoutConfig.multiplier - currentMultiplier
+                            ).toFixed(2)}x`}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
           <Button
             type="submit"
             className={`mt-2 h-12 w-full rounded-full text-lg font-bold ${
@@ -196,7 +271,10 @@ export function BetPanel() {
             {buttonText}
           </Button>
         </form>
-        <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+        />
       </CardContent>
     </Card>
   )

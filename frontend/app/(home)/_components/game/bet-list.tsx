@@ -1,5 +1,3 @@
-"use client"
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -13,7 +11,16 @@ import { useGameStore } from "./store/game.store"
 import { numberToCurrency } from "@/lib/utils"
 
 export function BetList() {
-  const { totalBets } = useGameStore();
+  const { totalBets } = useGameStore()
+
+  const mockBets = [
+    { user: "Carlos", value: 120 },
+    { user: "Ana", value: 85 },
+    { user: "João", value: 200 },
+    { user: "Marina", value: 45 },
+    { user: "Lucas", value: 300 },
+  ]
+
   return (
     <Card className="rounded-4xl border-border shadow-sm">
       <CardHeader className="pb-4">
@@ -23,23 +30,20 @@ export function BetList() {
             Jogadores
           </CardTitle>
           <div className="flex items-center -space-x-2 hover:space-x-1">
-            {/* <span className="mr-1">{bets.length}</span>
-            {bets.slice(0, 3).map((bet, i) => (
+            <span className="mr-1">{mockBets.length}</span>
+            {mockBets.slice(0, 3).map((bet, i) => (
               <Tooltip key={i}>
                 <TooltipTrigger asChild>
-                  <Avatar
-                    size="sm"
-                    className="ring-background transition-all duration-300 ease-in-out"
-                  >
-                    <AvatarImage src={bet.user} alt={bet.user} />
+                  <Avatar size="sm" className="transition-all duration-300">
+                    <AvatarImage src={`${bet.user}`} />
                     <AvatarFallback className="text-xs">
-                      {bet.user?.charAt(0)}
+                      {bet.user.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                 </TooltipTrigger>
                 <TooltipContent>{bet.user}</TooltipContent>
               </Tooltip>
-            ))} */}
+            ))}
           </div>
         </div>
         <Separator className="mt-2" />
@@ -56,7 +60,7 @@ export function BetList() {
             </span>
             <Separator orientation="vertical" />
             <span className="text-sm font-bold text-primary">
-              {numberToCurrency(totalBets)}
+              {Number(totalBets) || 0 < 0 ? numberToCurrency(totalBets) : "-"}
             </span>
           </div>
         </div>

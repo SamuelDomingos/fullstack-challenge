@@ -5,6 +5,7 @@ import { gameService } from "./_services/game.service"
 import { walletService } from "./_services/wallet.service"
 import { getServerSession } from "next-auth"
 import { authOptions } from "../api/auth/[...nextauth]/options"
+
 export default async function Page() {
   const session = await getServerSession(authOptions)
   const token = session?.user?.accessToken
@@ -21,12 +22,12 @@ export default async function Page() {
     <div className="relative flex min-h-screen flex-col">
       <Header balance={balance} />
       <main className="w-full flex-1">
-        <div className="container mx-auto w-full p-4 lg:h-[calc(100vh-370px)]">
+        <div className="container mx-auto w-full p-4 lg:h-[calc(100vh-300px)]">
           <GameContainer history={history} />
         </div>
 
         <div className="container mx-auto w-full p-4">
-          <div className="relative flex items-center justify-center py-4">
+          <div className="relative flex items-center justify-center mt-25 py-4">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border" />
             </div>

@@ -38,13 +38,13 @@ export const useGameWebSocket = () => {
     socketRef.current = socket
 
     socket.on("connect", () => {
-      console.log("✅ Conectado ao Game WebSocket")
+      console.log("Conectado ao Game WebSocket")
 
       setConnected(true)
     })
 
     socket.on("disconnect", () => {
-      console.log("❌ Desconectado do Game WebSocket")
+      console.log("Desconectado do Game WebSocket")
       setConnected(false)
     })
 
@@ -78,7 +78,7 @@ export const useGameWebSocket = () => {
     })
 
     socket.on("error", (error) => {
-      console.error("❌ Erro no WebSocket:", error)
+      console.error("Erro no WebSocket:", error)
     })
 
     return () => {
@@ -89,8 +89,10 @@ export const useGameWebSocket = () => {
     setMultiplier,
     setBettingTimer,
     setGameCrashed,
+    setBets,
     setStatus,
     setRoundId,
+    setTotalBets,
   ])
 
   const emit = useCallback(
