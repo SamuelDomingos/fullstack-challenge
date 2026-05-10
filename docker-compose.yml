@@ -102,7 +102,7 @@ services:
       timeout: 5s
       retries: 10
       start_period: 15s
-    command: sh -c "bunx prisma migrate reset --force && bun run start"
+    command: sh -c "bunx prisma generate && bunx prisma db push && bun run start"
 
   # ---------------------------------------------------------------------------
   # Wallets Service
@@ -124,7 +124,7 @@ services:
       timeout: 5s
       retries: 10
       start_period: 15s
-    command: sh -c "bunx prisma migrate reset --force && bun run start"
+    command: sh -c "bunx prisma generate && bunx prisma db push && bun run start"
 
   # ---------------------------------------------------------------------------
   # Frontend — SEM dependência bloqueante do Keycloak

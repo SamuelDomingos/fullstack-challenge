@@ -12,7 +12,7 @@ services:
       - name: rate-limiting
         config:
           minute: 60
-          policy: redis
+          policy: local
           limit_by: ip
 
   - name: wallets-service
@@ -26,5 +26,5 @@ services:
       - name: rate-limiting
         config:
           minute: 30
-          policy: redis
+          policy: local
           limit_by: ip
